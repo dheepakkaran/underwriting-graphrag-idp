@@ -1,0 +1,20 @@
+{
+ "split": "dev",
+ "prompt": "v2",
+ "files": 20,
+ "field_accuracy": 1.0,
+ "fields_scored": 160,
+ "misses_by_field": {
+  "sqft_application": 0,
+  "sqft_inspection": 0,
+  "sprinklered_application": 0,
+  "sprinklered_inspection": 0,
+  "prior_claims_disclosed": 0,
+  "loss_run_claim_count": 0,
+  "broker": 0,
+  "mailing_address": 0
+ },
+ "errors": 0,
+ "seconds_per_file": 2.08,
+ "usd": 0.0084
+}

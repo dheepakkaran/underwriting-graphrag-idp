@@ -1,0 +1,249 @@
+{
+ "split": "dev",
+ "n": 10,
+ "vector_correct": 5,
+ "graph_correct": 10,
+ "vector_acc": 0.5,
+ "graph_acc": 1.0,
+ "diff_graph_minus_vector": 0.5,
+ "ci95": [
+  0.2,
+  0.8
+ ],
+ "by_type": {
+  "broker_fire_count": {
+   "n": 5,
+   "vector": 3,
+   "graph": 5
+  },
+  "location_to_broker_claims": {
+   "n": 3,
+   "vector": 1,
+   "graph": 3
+  },
+  "shared_mailing": {
+   "n": 2,
+   "vector": 1,
+   "graph": 2
+  }
+ },
+ "top_k": 8,
+ "usd": 0.0046,
+ "rows": [
+  {
+   "id": "Q01",
+   "type": "broker_fire_count",
+   "vector": true,
+   "vector_answer": {
+    "names": [
+     "Kennebec Bakery"
+    ],
+    "number": 1,
+    "reasoning": "Only Kennebec Bakery (PHM-1044), placed by Kennebec Risk Advisors, has a fire claim (2024-04-19) on its loss run."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Kennebec Bakery"
+    ],
+    "number": 1,
+    "reasoning": "Only Kennebec Bakery's loss run includes a fire claim (2024-04-19); no other applicant lists one."
+   },
+   "graph_seeds": [
+    "broker:kennebec risk advisors"
+   ]
+  },
+  {
+   "id": "Q02",
+   "type": "broker_fire_count",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "Northern Light Brokerage's applicants are Ironwood Cold Storage and Pine Pharmacy, and neither has a loss run listing a fire claim; the fire claims belong to other insureds."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Riverbend Auto Body"
+    ],
+    "number": 1,
+    "reasoning": "Only Riverbend Auto Body, brokered by Northern Light Brokerage, has a fire claim (2022-02-01) on its loss run; no other applicant lists a fire claim."
+   },
+   "graph_seeds": [
+    "broker:northern light brokerage"
+   ]
+  },
+  {
+   "id": "Q03",
+   "type": "location_to_broker_claims",
+   "vector": true,
+   "vector_answer": {
+    "names": [
+     "Kennebec Risk Advisors"
+    ],
+    "number": 0,
+    "reasoning": "The 384 Commercial St applicant is Ironwood Pharmacy, brokered by Kennebec Risk Advisors, and no loss run for Ironwood Pharmacy appears in the context, so the claim count is 0 from its application's zero losses disclosed."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Kennebec Risk Advisors"
+    ],
+    "number": 0,
+    "reasoning": "Ironwood Pharmacy at 384 Commercial St, Bangor, ME was placed by broker Kennebec Risk Advisors, and its loss run shows 0 claims."
+   },
+   "graph_seeds": [
+    "address:384 commercial st, bangor, me"
+   ]
+  },
+  {
+   "id": "Q04",
+   "type": "broker_fire_count",
+   "vector": true,
+   "vector_answer": {
+    "names": [
+     "Lighthouse Print Shop"
+    ],
+    "number": 1,
+    "reasoning": "Casco Bay Insurance Group is broker for Lighthouse Print Shop, Kennebec Seafood Market, and Puffin Auto Body, and only Lighthouse Print Shop has a fire claim on its loss run (2023-09-25)."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Lighthouse Print Shop"
+    ],
+    "number": 1,
+    "reasoning": "Only Lighthouse Print Shop has a fire claim on its loss run (fire on 2023-09-25), and all listed applicants are placed by Casco Bay Insurance Group."
+   },
+   "graph_seeds": [
+    "broker:casco bay insurance group"
+   ]
+  },
+  {
+   "id": "Q05",
+   "type": "broker_fire_count",
+   "vector": true,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "Seaport Insurance Partners placed Cedar Furniture, Pine Auto Body, and Ironwood Fabrication, but none of them has a loss run in the context, so none is shown with a fire claim."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "None of the listed applicants has a fire claim on its loss run; claim types include roof collapse, theft, wind, water damage, and equipment breakdown only."
+   },
+   "graph_seeds": [
+    "broker:seaport insurance partners"
+   ]
+  },
+  {
+   "id": "Q06",
+   "type": "location_to_broker_claims",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "No applicant with a building at 21 Elm St, Bangor, ME appears in the context; the only Elm St location is 792 Elm St, Waterville, ME."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Acadia Commercial Lines"
+    ],
+    "number": 0,
+    "reasoning": "Ironwood Bakery's location is 21 Elm St, Bangor, ME, its broker is Acadia Commercial Lines, and its loss run shows 0 claims."
+   },
+   "graph_seeds": [
+    "address:21 elm st, bangor, me"
+   ]
+  },
+  {
+   "id": "Q07",
+   "type": "shared_mailing",
+   "vector": true,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Penobscot Fabrication's mailing address is 718 Congress St, Ellsworth, ME, and no other applicant in the context uses that address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Penobscot Fabrication's mailing address is 718 Congress St, Ellsworth, ME, and no other applicant in the context shares that address."
+   },
+   "graph_seeds": [
+    "applicant:penobscot fabrication"
+   ]
+  },
+  {
+   "id": "Q08",
+   "type": "location_to_broker_claims",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "No applicant at 974 Congress St, Rockland, ME appears in the context, so neither a broker nor a claim count can be determined."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Seaport Insurance Partners"
+    ],
+    "number": 1,
+    "reasoning": "The context shows Lobster Point Cold Storage at 974 Congress St, Rockland, ME, placed by broker Seaport Insurance Partners, with 1 claim on its loss run."
+   },
+   "graph_seeds": [
+    "address:974 congress st, rockland, me"
+   ]
+  },
+  {
+   "id": "Q09",
+   "type": "shared_mailing",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Seacoast Bakery's mailing address is PO Box 418, Saco, ME 04072, and no other applicant in the context uses that address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Granite Hardware",
+     "Pine Print Shop",
+     "Spruce Cold Storage"
+    ],
+    "number": null,
+    "reasoning": "All other applicants listed share the mailing address PO Box 418, Saco, ME 04072 with Seacoast Bakery."
+   },
+   "graph_seeds": [
+    "applicant:seacoast bakery"
+   ]
+  },
+  {
+   "id": "Q10",
+   "type": "broker_fire_count",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "The Acadia Commercial Lines applicants (Northwind Woodworks, Bayside Hardware, Tidewater Cold Storage) have no loss runs in the context, and the fire claims belong to Lighthouse Print Shop and Seacoast Bakery, whose brokers aren't listed as Acadia Commercial Lines."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Tidewater Cold Storage"
+    ],
+    "number": 1,
+    "reasoning": "Only Tidewater Cold Storage, brokered by Acadia Commercial Lines, has a fire claim (2022-08-14) on its loss run; Penobscot Cold Storage's claim is theft."
+   },
+   "graph_seeds": [
+    "broker:acadia commercial lines"
+   ]
+  }
+ ]
+}

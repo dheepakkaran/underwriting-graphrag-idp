@@ -1,0 +1,5 @@
+GET /health -> {'ok': True, 'files': 60, 'triaged': 60}
+GET /queue -> 29 referred files waiting for a human
+GET /files/PHM-1001/flags -> {"file_id": "PHM-1001", "route": "refer", "flags": [{"code": "ring", "detail": "PHM-1001 (Seacoast Bakery) shares mailing address PO Box 418, Saco, ME 04072 and broker Coastline Risk Partners with four other applicants, whose combined loss 
+POST /ask (ring question) -> ['Bayside Brewing Co.', 'Granite Hardware', 'Pine Print Shop', 'Spruce Cold Storage']
+truth -> ['Bayside Brewing Co.', 'Granite Hardware', 'Pine Print Shop', 'Spruce Cold Storage']

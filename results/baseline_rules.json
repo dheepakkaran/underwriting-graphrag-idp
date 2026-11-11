@@ -1,0 +1,36 @@
+{
+ "dev": {
+  "field_accuracy": 0.719,
+  "fields_scored": 160,
+  "routing": {
+   "n": 20,
+   "risky": 11,
+   "recall": 0.182,
+   "precision": 1.0,
+   "missed": 9,
+   "false_refers": 0,
+   "accuracy": 0.55,
+   "injected_files": 2,
+   "injected_routed_standard": 2,
+   "ring_files": 3,
+   "ring_caught": 0
+  }
+ },
+ "test": {
+  "field_accuracy": 0.828,
+  "fields_scored": 320,
+  "routing": {
+   "n": 40,
+   "risky": 17,
+   "recall": 0.647,
+   "precision": 1.0,
+   "missed": 6,
+   "false_refers": 0,
+   "accuracy": 0.85,
+   "injected_files": 1,
+   "injected_routed_standard": 0,
+   "ring_files": 2,
+   "ring_caught": 0
+  }
+ }
+}

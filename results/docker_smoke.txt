@@ -1,0 +1,5 @@
+date: 2026-11-11T11:33:45-05:00
+image: [{"ID":"sha256:abb76ffc39886ba8f07cc91902f68e8c0584fa0c47f4e18d08c00f0a913c300c","ContainerName":"underwriting-graphrag-idp-precheck-1","Repository":"underwriting-graphrag-idp-precheck","Tag":"latest"
+GET /health -> {"ok":true,"files":60,"triaged":60}
+GET /queue  -> 29 referred files
+GET /       -> 200

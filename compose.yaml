@@ -1,0 +1,6 @@
+services:
+  precheck:
+    build: .
+    ports: ["8000:8000"]
+    env_file: [.env]          # ANTHROPIC_API_KEY only needed for /ask
+    volumes: ["./results/review_log.jsonl:/srv/results/review_log.jsonl"]

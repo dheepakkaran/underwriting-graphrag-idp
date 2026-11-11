@@ -1,0 +1,487 @@
+{
+ "split": "test",
+ "n": 20,
+ "vector_correct": 5,
+ "graph_correct": 19,
+ "vector_acc": 0.25,
+ "graph_acc": 0.95,
+ "diff_graph_minus_vector": 0.7,
+ "ci95": [
+  0.45,
+  0.9
+ ],
+ "by_type": {
+  "broker_total_paid": {
+   "n": 8,
+   "vector": 0,
+   "graph": 8
+  },
+  "broker_fire_count": {
+   "n": 3,
+   "vector": 0,
+   "graph": 3
+  },
+  "shared_mailing": {
+   "n": 7,
+   "vector": 3,
+   "graph": 7
+  },
+  "location_to_broker_claims": {
+   "n": 2,
+   "vector": 2,
+   "graph": 1
+  }
+ },
+ "top_k": 8,
+ "usd": 0.0103,
+ "rows": [
+  {
+   "id": "Q11",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Kennebec Bakery",
+     "Ironwood Hardware"
+    ],
+    "number": 107000,
+    "reasoning": "Kennebec Risk Advisors placed Kennebec Bakery (PHM-1044, paid $46,500 + $60,500 = $107,000) and Ironwood Hardware (PHM-1047), but no Ironwood loss run appears in the context, so the total covers only Kennebec Bakery."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 408000,
+    "reasoning": "All 12 applicants use Kennebec Risk Advisors, and their loss-run total paid amounts sum to $408,000."
+   },
+   "graph_seeds": [
+    "broker:kennebec risk advisors"
+   ]
+  },
+  {
+   "id": "Q12",
+   "type": "broker_fire_count",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "No application in the context is placed by Pinetree Underwriting Services; the two applications listed are placed by Kennebec Risk Advisors, so the count is zero."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Ironwood Brewing Co."
+    ],
+    "number": 1,
+    "reasoning": "Only Ironwood Brewing Co. has fire claims on its loss run (two fires in 2023), so one applicant qualifies."
+   },
+   "graph_seeds": [
+    "broker:pinetree underwriting services"
+   ]
+  },
+  {
+   "id": "Q13",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "The context contains loss runs for several applicants but never mentions Coastline Risk Partners or which broker placed each applicant, so the total cannot be determined."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Granite Hardware",
+     "Pine Print Shop",
+     "Seacoast Bakery",
+     "Spruce Cold Storage"
+    ],
+    "number": 1517000,
+    "reasoning": "Summing the loss-run total paid for the five Coastline Risk Partners applicants ($233,000 + $245,000 + $369,000 + $274,000 + $396,000) gives $1,517,000."
+   },
+   "graph_seeds": [
+    "broker:coastline risk partners"
+   ]
+  },
+  {
+   "id": "Q14",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Lighthouse Print Shop",
+     "Kennebec Seafood Market"
+    ],
+    "number": 71500,
+    "reasoning": "Casco Bay Insurance Group is broker on the PHM-1036 and PHM-1042 applications; Lighthouse Print Shop's loss run totals $66,500 + $5,000 = $71,500, and Kennebec Seafood Market has no loss run in the context (0 losses disclosed)."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 95500,
+    "reasoning": "Summing total paid across all six applicants: $0 + $0 + $71,500 + $0 + $24,000 + $0 = $95,500."
+   },
+   "graph_seeds": [
+    "broker:casco bay insurance group"
+   ]
+  },
+  {
+   "id": "Q15",
+   "type": "shared_mailing",
+   "vector": true,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Ironwood Brewing Co. receives mail at 342 Elm St, Brunswick, ME, and no other applicant in the context lists that mailing address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Ironwood Brewing Co. uses 342 Elm St, Brunswick, ME, and no other applicant in the context has that mailing address."
+   },
+   "graph_seeds": [
+    "applicant:ironwood brewing co."
+   ]
+  },
+  {
+   "id": "Q16",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "The context never mentions Granite State Agency as a producing broker; the only broker listed is Kennebec Risk Advisors for Granite Pharmacy, so no applicants are attributable to Granite State Agency."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 295500,
+    "reasoning": "All seven applicants list Granite State Agency as broker, and their loss-run totals sum to $295,500 ($114,500 + $56,000 + $34,000 + $45,500 + $20,500 + $0 + $25,000)."
+   },
+   "graph_seeds": [
+    "broker:granite state agency"
+   ]
+  },
+  {
+   "id": "Q17",
+   "type": "shared_mailing",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Seacoast Bakery",
+     "Granite Hardware"
+    ],
+    "number": null,
+    "reasoning": "Bayside Brewing Co. uses PO Box 418, Saco, ME 04072, which is also the mailing address for Seacoast Bakery (PHM-1001) and Granite Hardware (PHM-1031)."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Granite Hardware",
+     "Pine Print Shop",
+     "Seacoast Bakery",
+     "Spruce Cold Storage"
+    ],
+    "number": null,
+    "reasoning": "All listed applicants share the mailing address PO Box 418, Saco, ME 04072 with Bayside Brewing Co., so the other four are named."
+   },
+   "graph_seeds": [
+    "applicant:bayside brewing co."
+   ]
+  },
+  {
+   "id": "Q18",
+   "type": "shared_mailing",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Granite Hardware"
+    ],
+    "number": null,
+    "reasoning": "Spruce Cold Storage's mailing address is PO Box 418, Saco, ME 04072, which is also the mailing address listed for Granite Hardware in PHM-1031."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Granite Hardware",
+     "Pine Print Shop",
+     "Seacoast Bakery"
+    ],
+    "number": null,
+    "reasoning": "All listed applicants share the mailing address PO Box 418, Saco, ME 04072, so the other four applicants besides Spruce Cold Storage match."
+   },
+   "graph_seeds": [
+    "applicant:spruce cold storage"
+   ]
+  },
+  {
+   "id": "Q19",
+   "type": "shared_mailing",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Granite Hardware"
+    ],
+    "number": null,
+    "reasoning": "Pine Print Shop's mailing address is PO Box 418, Saco, ME 04072, which is also the mailing address for Granite Hardware (PHM-1031)."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Granite Hardware",
+     "Seacoast Bakery",
+     "Spruce Cold Storage"
+    ],
+    "number": null,
+    "reasoning": "All five applicants share PO Box 418, Saco, ME 04072, so the other four use the same mailing address as Pine Print Shop."
+   },
+   "graph_seeds": [
+    "applicant:pine print shop"
+   ]
+  },
+  {
+   "id": "Q20",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Northwind Woodworks"
+    ],
+    "number": 0,
+    "reasoning": "Acadia Commercial Lines is broker of record only for Northwind Woodworks (PHM-1054), which has no loss run in the context and discloses 0 losses."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Hardware",
+     "Ironwood Auto Body",
+     "Ironwood Bakery",
+     "Lobster Point Furniture",
+     "Northwind Woodworks",
+     "Penobscot Cold Storage",
+     "Tidewater Cold Storage"
+    ],
+    "number": 53000,
+    "reasoning": "All eight applicants list Acadia Commercial Lines as broker; loss-run paid totals are $0 + $0 + $0 + $0 + $0 + $8,500 + $44,500 = $53,000 (the context lists seven applicants, so the total covers those seven)."
+   },
+   "graph_seeds": [
+    "broker:acadia commercial lines"
+   ]
+  },
+  {
+   "id": "Q21",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "The context lists loss runs for applicants but never mentions Northern Light Brokerage or which broker placed any applicant, so the total cannot be determined."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 114500,
+    "reasoning": "Summing loss-run total paid across all Northern Light Brokerage applicants: Ironwood Cold Storage $80,000, Riverbend Auto Body $10,500, and Spruce Auto Body $24,000, with the rest at $0, gives $114,500."
+   },
+   "graph_seeds": [
+    "broker:northern light brokerage"
+   ]
+  },
+  {
+   "id": "Q22",
+   "type": "shared_mailing",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Granite Hardware's mailing address is PO Box 418, Saco, ME 04072, and no other application lists that address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Pine Print Shop",
+     "Seacoast Bakery",
+     "Spruce Cold Storage"
+    ],
+    "number": null,
+    "reasoning": "Granite Hardware's mailing address is PO Box 418, Saco, ME 04072, which is also listed for Bayside Brewing Co., Pine Print Shop, Seacoast Bakery, and Spruce Cold Storage."
+   },
+   "graph_seeds": [
+    "applicant:granite hardware"
+   ]
+  },
+  {
+   "id": "Q23",
+   "type": "location_to_broker_claims",
+   "vector": true,
+   "vector_answer": {
+    "names": [
+     "Seaport Insurance Partners"
+    ],
+    "number": 0,
+    "reasoning": "The applicant at 718 Congress St, Ellsworth, ME is Penobscot Fabrication (PHM-1055), placed by Seaport Insurance Partners, with 0 prior claims in the last five years."
+   },
+   "graph": false,
+   "graph_answer": {
+    "names": [
+     "Seaport Insurance Partners",
+     "Penobscot Fabrication"
+    ],
+    "number": 0,
+    "reasoning": "Penobscot Fabrication at 718 Congress St, Ellsworth, ME was placed by broker Seaport Insurance Partners, and its loss run shows 0 claims."
+   },
+   "graph_seeds": [
+    "address:718 congress st, ellsworth, me"
+   ]
+  },
+  {
+   "id": "Q24",
+   "type": "broker_fire_count",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "Coastline Risk Partners is broker of record only for Bayside Brewing Co. (PHM-1009), and no loss run for that submission appears in the context, so no fire claim can be confirmed."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Brewing Co.",
+     "Seacoast Bakery",
+     "Spruce Cold Storage"
+    ],
+    "number": 3,
+    "reasoning": "All five applicants use broker Coastline Risk Partners, and three of them (Bayside Brewing Co., Seacoast Bakery, Spruce Cold Storage) have a fire claim on their loss run."
+   },
+   "graph_seeds": [
+    "broker:coastline risk partners"
+   ]
+  },
+  {
+   "id": "Q25",
+   "type": "broker_fire_count",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": 0,
+    "reasoning": "Granite State Agency is the broker of record only for Bayside Cold Storage (PHM-1051), which has no loss run in the context, and no loss run shows a fire claim."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Bayside Cold Storage"
+    ],
+    "number": 1,
+    "reasoning": "Only Bayside Cold Storage has a fire claim on its loss run (fire on 2024-05-26), and all listed applicants are placed by Granite State Agency."
+   },
+   "graph_seeds": [
+    "broker:granite state agency"
+   ]
+  },
+  {
+   "id": "Q26",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "The context contains no information about Pinetree Underwriting Services or which applicants it placed, so the total cannot be determined (all loss runs combined total $898,500)."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 127000,
+    "reasoning": "All applicants share broker Pinetree Underwriting Services, and summing the total paid across their loss runs gives $127,000 (only Ironwood Brewing Co. has claims)."
+   },
+   "graph_seeds": [
+    "broker:pinetree underwriting services"
+   ]
+  },
+  {
+   "id": "Q27",
+   "type": "broker_total_paid",
+   "vector": false,
+   "vector_answer": {
+    "names": [
+     "Cedar Furniture"
+    ],
+    "number": 0,
+    "reasoning": "Seaport Insurance Partners is broker of record only for Cedar Furniture (PHM-1048), which has no loss run in the context, so the total paid is $0."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": 263500,
+    "reasoning": "All seven applicants use Seaport Insurance Partners, and their loss-run totals sum to $263,500 ($0 + $29,000 + $0 + $124,000 + $30,000 + $0 + $80,500)."
+   },
+   "graph_seeds": [
+    "broker:seaport insurance partners"
+   ]
+  },
+  {
+   "id": "Q28",
+   "type": "location_to_broker_claims",
+   "vector": true,
+   "vector_answer": {
+    "names": [
+     "Granite State Agency"
+    ],
+    "number": 1,
+    "reasoning": "The applicant at 697 Congress St is Lobster Point Woodworks, placed by Granite State Agency; no loss run exists for it, so the count of 1 comes from the application's losses-disclosed field."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [
+     "Granite State Agency"
+    ],
+    "number": 1,
+    "reasoning": "The context lists Lobster Point Woodworks at 697 Congress St, Brunswick, ME, placed by broker Granite State Agency, with 1 claim on its loss run."
+   },
+   "graph_seeds": [
+    "address:697 congress st, brunswick, me"
+   ]
+  },
+  {
+   "id": "Q29",
+   "type": "shared_mailing",
+   "vector": true,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Ironwood Pharmacy's mailing address is 384 Commercial St, Bangor, ME, and no other applicant in the context uses that address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Ironwood Pharmacy's mailing address is 384 Commercial St, Bangor, ME, and no other applicant in the context shares that address."
+   },
+   "graph_seeds": [
+    "applicant:ironwood pharmacy"
+   ]
+  },
+  {
+   "id": "Q30",
+   "type": "shared_mailing",
+   "vector": true,
+   "vector_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Birch Seafood Market's mailing address is 684 Front St, Rockland, ME, and no other applicant lists that address."
+   },
+   "graph": true,
+   "graph_answer": {
+    "names": [],
+    "number": null,
+    "reasoning": "Birch Seafood Market's mailing address is 684 Front St, Rockland, ME, and no other applicant in the context shares that address."
+   },
+   "graph_seeds": [
+    "applicant:birch seafood market"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Underwriting pre-check · review queue</title>
+<style>
+  :root { --ink:#1b2430; --muted:#5b6675; --line:#d9dee5; --accent:#153e75; --bg:#f7f8fa; --warn:#b54708; }
+  body { font: 15px/1.45 system-ui, sans-serif; color: var(--ink); background: var(--bg); margin: 0; }
+  header { background: var(--accent); color: #fff; padding: 14px 20px; }
+  header small { opacity: .8; display: block; }
+  main { display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 16px; max-width: 1200px; margin: auto; }
+  section { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+  .row { padding: 8px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .row:hover, .row.on { background: #eef3fb; }
+  .flag { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 8px 0; background: #fff7ed; }
+  .quote { color: var(--muted); font-style: italic; }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+  button.alt { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+  input, textarea { width: 100%; box-sizing: border-box; padding: 7px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+  .muted { color: var(--muted); }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header><strong>Pine Harbor Mutual · underwriting pre-check</strong>
+  <small>Fictional insurer, synthetic files. The tool only refers; a human underwriter decides every file.</small></header>
+<main>
+  <section><h2>Review queue</h2><div id="queue" class="muted">loading…</div></section>
+  <section>
+    <div id="detail" class="muted">Pick a file from the queue.</div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+    <h2>Ask across files (graph retrieval)</h2>
+    <input id="q" placeholder="e.g. Which other applicants use the same mailing address as …?">
+    <p><button onclick="ask()">Ask</button></p><pre id="ans" class="muted" style="white-space:pre-wrap"></pre>
+  </section>
+</main>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+async function load() {
+  const q = await (await fetch("/queue")).json();
+  document.getElementById("queue").innerHTML = q.length ? q.map(f =>
+    `<div class="row" onclick="show('${f.file_id}', this)"><b>${f.file_id}</b> · ${f.flags.length} flag(s)</div>`).join("")
+    : "Queue is empty.";
+}
+async function show(id, el) {
+  document.querySelectorAll(".row").forEach(r => r.classList.remove("on")); el.classList.add("on");
+  const d = await (await fetch(`/files/${id}/flags`)).json();
+  document.getElementById("detail").innerHTML = `<h2>${id} · route: ${d.route}</h2>` +
+    d.flags.map(f => `<div class="flag"><b>${esc(f.code)}</b> — ${esc(f.detail)}<div class="quote">“${esc(f.quote)}”</div></div>`).join("") +
+    `<p><input id="who" placeholder="Reviewer name"></p><p><textarea id="why" rows="2" placeholder="Reason (required)"></textarea></p>
+     <button onclick="decide('${id}','approve_refer')">Keep referred</button>
+     <button class="alt" onclick="decide('${id}','override_to_standard')">Override to standard review</button>`;
+}
+async function decide(id, decision) {
+  const body = {decision, reason: document.getElementById("why").value, reviewer: document.getElementById("who").value};
+  const r = await fetch(`/queue/${id}/decision`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  if (!r.ok) { alert("Reviewer name and a reason are required."); return; }
+  document.getElementById("detail").innerHTML = `<p>Logged: ${esc(decision)} for ${id}.</p>`; load();
+}
+async function ask() {
+  const r = await (await fetch("/ask", {method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({question: document.getElementById("q").value})})).json();
+  document.getElementById("ans").textContent = JSON.stringify(r.answer ?? r.note, null, 1);
+}
+load();
+</script>
+</body>
+</html>

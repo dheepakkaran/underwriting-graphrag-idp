@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Underwriting Document Intelligence · GraphRAG + human review</title>
+<meta name="description" content="A prototype that pre-checks commercial property insurance files, links risk across files with a graph, and sends only the risky ones to a human underwriter. Synthetic data, measured results.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1020; --bg2:#10182e; --card:#141d36; --line:#24304f; --ink:#e8ecf6; --muted:#9aa6c2;
+  --a:#5b8cff; --b:#22d3a6; --c:#ffb547; --d:#ff6b8b; --grid:#1c2744;
+  --base:#6b7899; --glow:0 0 0 1px rgba(91,140,255,.25),0 20px 60px -20px rgba(91,140,255,.35);
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6f8fc;--bg2:#eef2fa;--card:#ffffff;--line:#dde3ef;--ink:#121a2e;--muted:#57627d;--grid:#e6ebf5;--base:#9aa6c2;
+        --glow:0 0 0 1px rgba(91,140,255,.18),0 20px 50px -24px rgba(40,70,160,.25)}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--a);text-decoration:none} a:hover{text-decoration:underline}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 75%,transparent);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:58px;overflow-x:auto;white-space:nowrap}
+nav b{font-weight:800;letter-spacing:-.02em} nav a{color:var(--muted);font-size:14px} nav a:hover{color:var(--ink);text-decoration:none}
+nav .gh{margin-left:auto;color:var(--ink);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+#prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--a),var(--b));z-index:30}
+
+/* hero */
+.hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;border-bottom:1px solid var(--line)}
+#net{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.hero .wrap{position:relative;z-index:2;padding-top:40px;padding-bottom:60px}
+.tag{display:inline-flex;gap:8px;align-items:center;font:600 12px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--b);
+     border:1px solid color-mix(in srgb,var(--b) 40%,transparent);padding:7px 11px;border-radius:999px;background:color-mix(in srgb,var(--b) 8%,transparent)}
+h1{font-size:clamp(36px,6.2vw,72px);line-height:1.03;letter-spacing:-.035em;margin:18px 0 18px;font-weight:800;max-width:900px}
+h1 .grad{background:linear-gradient(90deg,var(--a),var(--b) 60%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:720px;margin:0 0 34px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:960px}
+.kpi{background:color-mix(in srgb,var(--card) 82%,transparent);border:1px solid var(--line);border-radius:16px;padding:16px 18px;backdrop-filter:blur(6px)}
+.kpi .v{font:800 clamp(26px,3.4vw,38px)/1 Inter;letter-spacing:-.03em}
+.kpi .l{color:var(--muted);font-size:13.5px;margin-top:8px;line-height:1.4}
+.v.a{color:var(--a)} .v.b{color:var(--b)} .v.c{color:var(--c)} .v.d{color:var(--d)}
+.scroll{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:12px;z-index:2;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,6px)}}
+
+section{padding:96px 0;border-bottom:1px solid var(--line)}
+section.alt{background:var(--bg2)}
+.eyebrow{font:600 12px/1 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--a);margin-bottom:12px}
+h2{font-size:clamp(28px,4vw,44px);line-height:1.1;letter-spacing:-.03em;margin:0 0 16px;font-weight:800;max-width:820px}
+.sub{color:var(--muted);font-size:18px;max-width:760px;margin:0 0 40px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--glow)}
+.card h3{margin:0 0 8px;font-size:18px;letter-spacing:-.01em}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:14px;font:700 16px "JetBrains Mono"}
+.mono{font-family:"JetBrains Mono",monospace;font-size:13px}
+.pill{display:inline-block;font:600 12px "JetBrains Mono";padding:3px 8px;border-radius:6px;background:color-mix(in srgb,var(--a) 14%,transparent);color:var(--a)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}.rv.d4{transition-delay:.32s}
+
+/* doc stack */
+.docs{display:flex;gap:14px;flex-wrap:wrap}
+.doc{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;position:relative;min-height:150px}
+.doc .t{font:600 12px "JetBrains Mono";color:var(--muted);margin-bottom:10px}
+.doc .ln{height:7px;border-radius:4px;background:var(--grid);margin:7px 0}
+.doc .hl{background:color-mix(in srgb,var(--d) 55%,transparent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+
+/* pipeline */
+.pipe{width:100%;height:auto;display:block}
+.pipe .box{fill:var(--card);stroke:var(--line)}
+.pipe text{fill:var(--ink);font:600 13px Inter} .pipe .small{fill:var(--muted);font:500 11px Inter}
+.pipe .flow{stroke:var(--line);stroke-width:2;fill:none}
+.pipe .dot{fill:var(--b);filter:drop-shadow(0 0 6px var(--b))}
+.pipe .hum{fill:color-mix(in srgb,var(--c) 18%,var(--card));stroke:var(--c)}
+
+/* charts */
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart .gl{stroke:var(--grid)} .chart .ax{fill:var(--muted);font:500 12px Inter}
+.chart .lab{fill:var(--ink);font:600 13px Inter} .chart .val{font:700 13px "JetBrains Mono"}
+.legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.bar{transition:width 1.2s cubic-bezier(.2,.7,.2,1),height 1.2s cubic-bezier(.2,.7,.2,1),y 1.2s cubic-bezier(.2,.7,.2,1)}
+.big{font:800 54px/1 Inter;letter-spacing:-.04em}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+
+/* timeline */
+.tl{position:relative;margin-left:10px;border-left:2px solid var(--line);padding-left:28px}
+.tl .it{position:relative;margin:0 0 28px}
+.tl .it::before{content:"";position:absolute;left:-36px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--d)}
+.tl .it.ok::before{border-color:var(--b)}
+.tl h4{margin:0 0 4px;font-size:16px} .tl p{margin:0;color:var(--muted);font-size:15px;max-width:760px}
+
+pre{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;overflow:auto;font:13px/1.6 "JetBrains Mono",monospace;color:var(--ink)}
+footer{padding:40px 0 60px;color:var(--muted);font-size:13.5px}
+.cta{display:inline-flex;gap:10px;align-items:center;background:linear-gradient(90deg,var(--a),var(--b));color:#06101f;font-weight:700;padding:12px 18px;border-radius:12px}
+.cta:hover{text-decoration:none;filter:brightness(1.08)}
+.btn2{display:inline-flex;padding:12px 16px;border-radius:12px;border:1px solid var(--line);color:var(--ink)}
+
+@media (max-width:860px){
+  .kpis{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}section{padding:72px 0}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<nav><div class="wrap">
+  <b>Underwriting DI</b>
+  <a href="#why">Why</a><a href="#how">How it works</a><a href="#principles">Design</a><a href="#results">Results</a><a href="#broke">What broke</a><a href="#run">Run it</a>
+  <a class="gh" href="https://github.com/dheepakkaran/underwriting-graphrag-idp">GitHub ↗</a>
+</div></nav>
+
+<header class="hero">
+  <canvas id="net" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <span class="tag">● Prototype · synthetic data · measured</span>
+    <h1>Read every file.<br><span class="grad">See across all of them.</span><br>Let a human decide.</h1>
+    <p class="lede">An AI pre-check for commercial property underwriting: it extracts each submission, checks it against internal records, links brokers and addresses across files with a graph, and sends only the risky files to a senior underwriter, each flag backed by a quote.</p>
+    <div class="kpis">
+      <div class="kpi rv"><div class="v b"><span data-count="17">0</span>/17</div><div class="l">risky test files routed to human review (rules baseline: 11)</div></div>
+      <div class="kpi rv d1"><div class="v a"><span data-count="95">0</span>%</div><div class="l">cross-file questions answered with graph retrieval (vector RAG: 25%)</div></div>
+      <div class="kpi rv d2"><div class="v c"><span data-count="99.7" data-dec="1">0</span>%</div><div class="l">key fields extracted exactly, every quote verbatim (200/200)</div></div>
+      <div class="kpi rv d3"><div class="v d">$<span data-count="0.107" data-dec="3">0</span></div><div class="l">total model cost for every run, dev iterations included</div></div>
+    </div>
+  </div>
+  <div class="scroll">scroll ↓</div>
+</header>
+
+<section id="why">
+  <div class="wrap">
+    <div class="eyebrow rv">01 · Why this exists</div>
+    <h2 class="rv">Underwriters read three documents per file, and the risk often lives in the gaps between them.</h2>
+    <p class="sub rv">A small-commercial submission arrives as an application, a loss run from the prior carrier, and an inspection report. Checking them against each other, and against what the insurer already knows, is most of the work. Two kinds of risk slip through.</p>
+    <div class="grid2">
+      <div class="card rv">
+        <div class="icon" style="background:color-mix(in srgb,var(--d) 18%,transparent);color:var(--d)">≠</div>
+        <h3>Mismatches inside one file</h3>
+        <p>The application says 8,000 sq ft and sprinklered; the inspector measured 11,500 sq ft and found no sprinklers. The application discloses no prior claims; the loss run lists three. Same premium, very different building.</p>
+        <div class="docs" style="margin-top:18px">
+          <div class="doc"><div class="t">application.pdf</div><div class="ln"></div><div class="ln hl" style="width:70%"></div><div class="ln" style="width:85%"></div><div class="ln hl" style="width:55%"></div></div>
+          <div class="doc"><div class="t">loss_run.pdf</div><div class="ln" style="width:90%"></div><div class="ln hl" style="width:80%"></div><div class="ln hl" style="width:75%"></div></div>
+          <div class="doc"><div class="t">inspection.pdf</div><div class="ln" style="width:80%"></div><div class="ln hl" style="width:65%"></div><div class="ln" style="width:70%"></div></div>
+        </div>
+      </div>
+      <div class="card rv d1">
+        <div class="icon" style="background:color-mix(in srgb,var(--a) 18%,transparent);color:var(--a)">⟁</div>
+        <h3>Links across files</h3>
+        <p>Five applicants, one broker, one PO box, heavy losses. Each file looks fine on its own; the pattern only shows when you connect them. A reviewer reading one file at a time cannot see it, and neither can plain keyword or vector search.</p>
+        <svg viewBox="0 0 420 170" class="chart" style="margin-top:14px" aria-label="ring of five applicants sharing a broker and address">
+          <g id="ringsvg"></g>
+        </svg>
+      </div>
+    </div>
+    <div class="grid3" style="margin-top:20px">
+      <div class="card rv"><h3>What it is for</h3><p>Put senior underwriters on the files that need them, with the evidence already lined up, and keep clean files moving.</p></div>
+      <div class="card rv d1"><h3>What it is not</h3><p>Not an auto-decline engine, not pricing, not a model trained on real applicants. Two routes exist: standard review or refer. A person decides.</p></div>
+      <div class="card rv d2"><h3>Why a graph</h3><p>Loss runs never name the broker. "Total losses for broker X" needs a hop from broker → applicants → claims, which chunk-and-embed retrieval cannot make.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="alt">
+  <div class="wrap">
+    <div class="eyebrow rv">02 · How it works</div>
+    <h2 class="rv">LLM where reading is hard. Code where rules are clear. A graph for what no single file shows.</h2>
+    <p class="sub rv">Each stage does one job, and the stage that chooses the route is plain code.</p>
+    <div class="card rv" style="padding:18px">
+      <svg viewBox="0 0 1060 300" class="pipe" id="pipe" role="img" aria-label="pipeline from PDFs to human review">
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--line)"/></marker></defs>
+        <path id="p1" class="flow" d="M120,80 H190" marker-end="url(#arr)"/>
+        <path id="p2" class="flow" d="M330,80 H400" marker-end="url(#arr)"/>
+        <path id="p3" class="flow" d="M540,80 H610" marker-end="url(#arr)"/>
+        <path id="p4" class="flow" d="M750,80 H820" marker-end="url(#arr)"/>
+        <path id="p5" class="flow" d="M470,110 V170 H680 V110" marker-end="url(#arr)"/>
+        <path id="p6" class="flow" d="M890,110 V200" marker-end="url(#arr)"/>
+        <g><rect class="box" x="20" y="45" width="100" height="70" rx="12"/><text x="70" y="77" text-anchor="middle">3 PDFs</text><text class="small" x="70" y="96" text-anchor="middle">per file</text></g>
+        <g><rect class="box" x="190" y="45" width="140" height="70" rx="12"/><text x="260" y="74" text-anchor="middle">Extraction</text><text class="small" x="260" y="93" text-anchor="middle">Claude · schema · quotes</text></g>
+        <g><rect class="box" x="400" y="45" width="140" height="70" rx="12"/><text x="470" y="74" text-anchor="middle">Validators</text><text class="small" x="470" y="93" text-anchor="middle">code vs records</text></g>
+        <g><rect class="box" x="610" y="45" width="140" height="70" rx="12"/><text x="680" y="74" text-anchor="middle">Agent</text><text class="small" x="680" y="93" text-anchor="middle">LangGraph · tools</text></g>
+        <g><rect class="box" x="820" y="45" width="140" height="70" rx="12"/><text x="890" y="74" text-anchor="middle">Route</text><text class="small" x="890" y="93" text-anchor="middle">code: standard | refer</text></g>
+        <g><rect class="box" x="400" y="170" width="280" height="56" rx="12" style="stroke:var(--a)"/><text x="540" y="195" text-anchor="middle">Entity graph</text><text class="small" x="540" y="213" text-anchor="middle">applicant · broker · address · claim</text></g>
+        <g><rect class="hum" x="770" y="200" width="240" height="64" rx="12"/><text x="890" y="227" text-anchor="middle">Human review queue</text><text class="small" x="890" y="246" text-anchor="middle">interrupt() · approve / override + reason</text></g>
+        <circle class="dot" r="5"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion></circle>
+        <circle class="dot" r="5"><animateMotion dur="1.6s" begin=".4s" repeatCount="indefinite"><mpath href="#p2"/></animateMotion></circle>
+        <circle class="dot" r="5"><animateMotion dur="1.6s" begin=".8s" repeatCount="indefinite"><mpath href="#p3"/></animateMotion></circle>
+        <circle class="dot" r="5"><animateMotion dur="1.6s" begin="1.2s" repeatCount="indefinite"><mpath href="#p4"/></animateMotion></circle>
+        <circle class="dot" r="5" style="fill:var(--a)"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p5"/></animateMotion></circle>
+        <circle class="dot" r="5" style="fill:var(--c)"><animateMotion dur="1.4s" repeatCount="indefinite"><mpath href="#p6"/></animateMotion></circle>
+      </svg>
+    </div>
+    <div class="grid3" style="margin-top:20px">
+      <div class="card rv"><span class="pill">01</span><h3 style="margin-top:10px">Intelligent document processing</h3><p>PDF text → Claude Haiku with a Pydantic schema. Every key field comes back with the exact sentence it came from, and quotes are checked against the document.</p></div>
+      <div class="card rv d1"><span class="pill">02</span><h3 style="margin-top:10px">Deterministic validators</h3><p>Square footage, sprinklers and disclosed claims compared across documents and against internal records. Same input, same flag, every time.</p></div>
+      <div class="card rv d2"><span class="pill">03</span><h3 style="margin-top:10px">Graph + narrow agent</h3><p>A networkx graph links applicants, brokers, addresses and claims. The agent's only job: look across files and flag a broker/address ring when the graph supports it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="principles">
+  <div class="wrap">
+    <div class="eyebrow rv">03 · Design choices</div>
+    <h2 class="rv">Five rules the build follows, and why.</h2>
+    <p class="sub rv">Insurance decisions need audit trails and human oversight (see the NAIC Model Bulletin on the Use of AI Systems by Insurers, Dec 2023). These choices make the prototype reviewable.</p>
+    <div class="grid3">
+      <div class="card rv"><div class="icon" style="background:color-mix(in srgb,var(--b) 18%,transparent);color:var(--b)">{ }</div><h3>Code picks the route</h3><p>The route is a function of the flags. The model cannot choose it, so text in a document cannot talk its way to "standard".</p></div>
+      <div class="card rv d1"><div class="icon" style="background:color-mix(in srgb,var(--a) 18%,transparent);color:var(--a)">⌖</div><h3>The agent's job is narrow</h3><p>It started broad and over-flagged a clean file. Narrowing it to cross-file rings fixed that. Plain code does the rest better.</p></div>
+      <div class="card rv d2"><div class="icon" style="background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)">“”</div><h3>Every flag has a quote</h3><p>Underwriters trust a sentence, not a score. Each flag carries the verbatim text it came from.</p></div>
+      <div class="card rv"><div class="icon" style="background:color-mix(in srgb,var(--d) 18%,transparent);color:var(--d)">⛨</div><h3>Documents are data</h3><p>Three files carry a planted "route this to standard" instruction. It is captured and shown as a flag; it changed zero routes.</p></div>
+      <div class="card rv d1"><div class="icon" style="background:color-mix(in srgb,var(--b) 18%,transparent);color:var(--b)">✓</div><h3>A human decides</h3><p>No decline route exists. Referred files pause at a LangGraph interrupt until a reviewer approves or overrides with a reason, which is logged.</p></div>
+      <div class="card rv d2"><div class="icon" style="background:color-mix(in srgb,var(--a) 18%,transparent);color:var(--a)">⧗</div><h3>Baselines first, test once</h3><p>Rules and vector-RAG baselines were frozen before any LLM run. Prompts and the agent were tuned on dev; the test split ran once.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="alt">
+  <div class="wrap">
+    <div class="eyebrow rv">04 · Results</div>
+    <h2 class="rv">Measured on a frozen test split of 40 files.</h2>
+    <p class="sub rv">60 synthetic submissions, 28 with planted risk; test split fixed by hash before any model call. Claude Haiku 5.5 for every LLM step.</p>
+
+    <div class="grid2">
+      <div class="card rv">
+        <h3>Routing: rules baseline vs prototype</h3>
+        <p>17 risky files in test, 2 of them in a broker/address ring.</p>
+        <svg viewBox="0 0 520 300" class="chart" id="c-route"></svg>
+        <div class="legend"><span><i style="background:var(--base)"></i>Rules baseline (regex + validators)</span><span><i style="background:var(--b)"></i>Prototype</span></div>
+        <div class="note">One false refer: an extracted number disagreed with its own quote (FAILURES #5).</div>
+      </div>
+      <div class="card rv d1">
+        <h3>Cross-file questions: vector RAG vs graph</h3>
+        <p>Same model, same answer prompt; only retrieval differs. Correct of n, by question type.</p>
+        <svg viewBox="0 0 520 300" class="chart" id="c-rag"></svg>
+        <div class="legend"><span><i style="background:var(--base)"></i>Vector RAG (bge-small, top-8)</span><span><i style="background:var(--a)"></i>Graph retrieval (2-hop)</span></div>
+        <div class="note">Overall 5/20 vs 19/20: +70 points, 95% paired bootstrap CI [+45, +90].</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:20px">
+      <div class="card rv">
+        <h3>Extraction accuracy</h3>
+        <svg viewBox="0 0 220 220" class="chart" id="c-donut" style="max-width:220px;margin:10px auto 0"></svg>
+        <p style="text-align:center">319/320 key fields · regex baseline 82.8%</p>
+      </div>
+      <div class="card rv d1">
+        <h3>Where the money went</h3>
+        <svg viewBox="0 0 320 200" class="chart" id="c-cost"></svg>
+        <p>375 calls, $0.107 total, under a hard $0.50 cap enforced in code.</p>
+      </div>
+      <div class="card rv d2">
+        <h3>Safety checks</h3>
+        <div style="display:grid;gap:14px;margin-top:12px">
+          <div><div class="big" style="color:var(--b)">0</div><p>decline routes (none exist)</p></div>
+          <div><div class="big" style="color:var(--b)">0</div><p>routes changed by planted instructions</p></div>
+          <div><div class="big" style="color:var(--a)">2/2</div><p>ring files caught (baseline 0/2)</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card rv" style="margin-top:20px">
+      <h3>Why vector retrieval scored 0/8 on broker totals</h3>
+      <p>A broker total needs the claims of 6–10 different applicants. Their loss runs never mention the broker, so nearest-neighbour search cannot tell which ones belong together, and top-8 chunks cannot hold them all. The graph walks broker → applicants → claims and hands the model exactly those facts. On single-file lookups (the building at an address) vector search did fine, 2/2.</p>
+    </div>
+  </div>
+</section>
+
+<section id="broke">
+  <div class="wrap">
+    <div class="eyebrow rv">05 · What broke, and what changed</div>
+    <h2 class="rv">The failures shaped the design more than the successes.</h2>
+    <p class="sub rv">Every change was made on dev data, before the single test run. Full list in <a href="https://github.com/dheepakkaran/underwriting-graphrag-idp/blob/main/FAILURES.md">FAILURES.md</a>.</p>
+    <div class="tl">
+      <div class="it rv"><h4>The baseline was too weak</h4><p>The first regex missed fields in one of the two known forms, which would have flattered the LLM. Completed before freezing: test recall 64.7%, not 24%.</p></div>
+      <div class="it rv"><h4>Quotes were paraphrased</h4><p>The model wrote "Sprinklered column: No", text that exists nowhere. Prompt v2 asks for character-for-character rows: 96/100 → 98/100 on dev, 200/200 on test.</p></div>
+      <div class="it rv"><h4>The agent over-flagged a clean file, twice</h4><p>First it quoted a table header as evidence; after a verbatim-evidence guardrail it quoted a real sentence but drew the wrong conclusion. Verbatim checks cannot catch bad logic, so in-file checks moved to code and the agent kept only the cross-file job.</p></div>
+      <div class="it rv"><h4>One test false refer</h4><p>An extracted claim count (0) disagreed with its own quoted row (1). A reviewer sees it in seconds; the next fix is to re-parse numbers from their quotes and mark disagreements as uncertain.</p></div>
+      <div class="it ok rv"><h4>Container fixed before it failed</h4><p>The image would have installed the project as its own dependency and shipped the virtual environment and .env. Fixed with an export flag and a .dockerignore; the container smoke test passed.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="eyebrow rv">06 · Limits and next steps</div>
+    <h2 class="rv">Honest about what this shows.</h2>
+    <div class="grid2">
+      <div class="card rv"><h3>Limits</h3><p>Synthetic, born-digital PDFs in three layouts, so 99.7% extraction says little about scanned or handwritten files. Entity linking is exact string matching. The ring is five planted files. No cloud deployment; the container runs locally.</p></div>
+      <div class="card rv d1"><h3>Next</h3><p>Re-parse numbers from their quotes · fuzzy entity resolution for addresses and business names · a two-week shadow run beside underwriters to measure agreement and minutes saved per file · override-rate monitoring as a governance signal.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="run">
+  <div class="wrap">
+    <div class="eyebrow rv">07 · Run it</div>
+    <h2 class="rv">Everything regenerates from a seed.</h2>
+<pre class="rv">uv sync                                # Python 3.12
+python data/gen.py                     # 60 synthetic files, seed 7
+python eval/run_baseline.py            # frozen rules baseline ($0)
+cp .env.example .env                   # ANTHROPIC_API_KEY=... for the LLM steps
+python eval/run_extract.py all v2      # extraction
+python eval/run_rag.py test            # vector RAG vs graph retrieval
+python eval/run_triage.py test         # agent triage
+python eval/make_results.py            # RESULTS.md from results/*.json
+python -m pytest -q                    # 14 offline tests
+./docker_smoke.sh                      # container: /health, /queue, review UI</pre>
+    <p style="margin-top:26px" class="rv">
+      <a class="cta" href="https://github.com/dheepakkaran/underwriting-graphrag-idp">View the code on GitHub →</a>
+      &nbsp; <a class="btn2" href="https://github.com/dheepakkaran/underwriting-graphrag-idp/blob/main/RESULTS.md">RESULTS.md</a>
+      &nbsp; <a class="btn2" href="https://github.com/dheepakkaran/underwriting-graphrag-idp/blob/main/HANDOVER.md">HANDOVER.md</a>
+    </p>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  Independent learning project by Dheepak Karan Elumalai Santhakumari. "Pine Harbor Mutual" and every applicant, broker and document here are fictional and synthetic. Not affiliated with any insurer or institution. Not insurance advice.
+</div></footer>
+
+<script>
+const CSS = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+
+/* progress bar */
+addEventListener("scroll", () => {
+  const h = document.documentElement; document.getElementById("prog").style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + "%";
+}, {passive: true});
+
+/* hero: drifting entity graph with one highlighted ring */
+(() => {
+  const c = document.getElementById("net"), x = c.getContext("2d"); let W, H, nodes = [];
+  const size = () => { W = c.width = c.offsetWidth * devicePixelRatio; H = c.height = c.offsetHeight * devicePixelRatio; };
+  size(); addEventListener("resize", size);
+  const N = Math.min(70, Math.floor(innerWidth / 18));
+  for (let i = 0; i < N; i++) nodes.push({x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, r: 1.5 + Math.random() * 2.5, ring: i < 6});
+  const draw = () => {
+    x.clearRect(0, 0, W, H); const d = 150 * devicePixelRatio, a = CSS("--a"), b = CSS("--d"), m = CSS("--muted");
+    for (const n of nodes) { if (!reduce) { n.x += n.vx; n.y += n.vy; } if (n.x < 0 || n.x > W) n.vx *= -1; if (n.y < 0 || n.y > H) n.vy *= -1; }
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      const p = nodes[i], q = nodes[j], dist = Math.hypot(p.x - q.x, p.y - q.y), ring = p.ring && q.ring;
+      if (dist < d || ring) { x.globalAlpha = ring ? .55 : (1 - dist / d) * .35; x.strokeStyle = ring ? b : a; x.lineWidth = ring ? 1.4 * devicePixelRatio : devicePixelRatio; x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(q.x, q.y); x.stroke(); }
+    }
+    for (const n of nodes) { x.globalAlpha = n.ring ? 1 : .7; x.fillStyle = n.ring ? b : m; x.beginPath(); x.arc(n.x, n.y, n.r * devicePixelRatio * (n.ring ? 1.6 : 1), 0, 7); x.fill(); }
+    x.globalAlpha = 1; if (!reduce) requestAnimationFrame(draw);
+  };
+  draw();
+})();
+
+/* ring illustration */
+(() => {
+  const g = document.getElementById("ringsvg"), cx = 210, cy = 85;
+  const hubs = [{x: cx - 60, y: cy, t: "Broker"}, {x: cx + 60, y: cy, t: "PO Box 418"}];
+  const apps = [0, 1, 2, 3, 4].map(i => ({x: cx + Math.cos(i / 5 * 6.283 - 1.57) * 150 * (i % 2 ? .9 : 1), y: cy + Math.sin(i / 5 * 6.283 - 1.57) * 70}));
+  apps.forEach((p, i) => hubs.forEach(h => el("line", {x1: p.x, y1: p.y, x2: h.x, y2: h.y, stroke: "var(--d)", "stroke-opacity": .5, "stroke-width": 1.4, "stroke-dasharray": "4 4"}, g)));
+  hubs.forEach(h => { el("rect", {x: h.x - 46, y: h.y - 14, width: 92, height: 28, rx: 8, fill: "var(--card)", stroke: "var(--a)"}, g); const t = el("text", {x: h.x, y: h.y + 4, "text-anchor": "middle", class: "lab", style: "font:600 11px Inter;fill:var(--ink)"}, g); t.textContent = h.t; });
+  apps.forEach((p, i) => { el("circle", {cx: p.x, cy: p.y, r: 13, fill: "var(--d)", "fill-opacity": .2, stroke: "var(--d)"}, g); const t = el("text", {x: p.x, y: p.y + 4, "text-anchor": "middle", style: "font:700 10px 'JetBrains Mono';fill:var(--d)"}, g); t.textContent = "A" + (i + 1); });
+})();
+
+/* charts */
+function grouped(id, cats, series, max, fmt) {
+  const s = document.getElementById(id), L = 150, R = 500, top = 14, rowH = 270 / cats.length, bh = Math.min(18, rowH / 3.2);
+  [0, .25, .5, .75, 1].forEach(f => { const X = L + (R - L) * f; el("line", {x1: X, x2: X, y1: top - 4, y2: top + rowH * cats.length, class: "gl"}, s); });
+  cats.forEach((c, i) => {
+    const y0 = top + i * rowH + rowH / 2 - bh - 2; const t = el("text", {x: L - 10, y: y0 + bh + 6, "text-anchor": "end", class: "lab"}, s); t.textContent = c;
+    series.forEach((sr, k) => {
+      const v = sr.v[i], y = y0 + k * (bh + 4), w = (R - L) * Math.min(v, max) / max;
+      const r = el("rect", {x: L, y, height: bh, width: 0, rx: 4, fill: sr.c, class: "bar"}, s); r.dataset.w = w;
+      const tv = el("text", {x: L + w + 6, y: y + bh - 4, class: "val", fill: sr.c}, s); tv.textContent = fmt(v, i, k); tv.style.opacity = 0; tv.classList.add("vv");
+    });
+  });
+}
+grouped("c-route", ["Risky caught", "Refer precision", "Route accuracy", "Rings caught"],
+  [{c: CSS("--base"), v: [64.7, 100, 85.0, 0]}, {c: CSS("--b"), v: [100, 94.4, 97.5, 100]}], 100,
+  (v, i, k) => i === 0 ? (k ? "17/17" : "11/17") : i === 3 ? (k ? "2/2" : "0/2") : v.toFixed(1) + "%");
+const rag = {cats: ["Broker totals", "Broker fire counts", "Shared mailing", "Location lookup"], n: [8, 3, 7, 2], v: [0, 0, 3, 2], g: [8, 3, 7, 1]};
+grouped("c-rag", rag.cats, [{c: CSS("--base"), v: rag.v.map((x, i) => x / rag.n[i] * 100)}, {c: CSS("--a"), v: rag.g.map((x, i) => x / rag.n[i] * 100)}], 100,
+  (v, i, k) => (k ? rag.g[i] : rag.v[i]) + "/" + rag.n[i]);
+
+(() => { /* donut */
+  const s = document.getElementById("c-donut"), R = 80, C = 2 * Math.PI * R;
+  el("circle", {cx: 110, cy: 110, r: R, fill: "none", stroke: "var(--grid)", "stroke-width": 20}, s);
+  el("circle", {cx: 110, cy: 110, r: R - 26, fill: "none", stroke: "var(--grid)", "stroke-width": 8}, s);
+  const a = el("circle", {cx: 110, cy: 110, r: R, fill: "none", stroke: "var(--c)", "stroke-width": 20, "stroke-linecap": "round", "stroke-dasharray": `0 ${C}`, transform: "rotate(-90 110 110)", class: "arc"}, s);
+  a.dataset.d = `${C * .997} ${C}`;
+  const r2 = R - 26, C2 = 2 * Math.PI * r2;
+  const b = el("circle", {cx: 110, cy: 110, r: r2, fill: "none", stroke: "var(--base)", "stroke-width": 8, "stroke-dasharray": `0 ${C2}`, transform: "rotate(-90 110 110)", class: "arc"}, s);
+  b.dataset.d = `${C2 * .828} ${C2}`;
+  [a, b].forEach(x => x.style.transition = "stroke-dasharray 1.6s cubic-bezier(.2,.7,.2,1)");
+  const t = el("text", {x: 110, y: 116, "text-anchor": "middle", style: "font:800 30px Inter;fill:var(--ink)"}, s); t.textContent = "99.7%";
+})();
+
+(() => { /* cost stacked */
+  const s = document.getElementById("c-cost"), parts = [["Agent", .0504, 214, "--a"], ["Extraction", .0418, 100, "--c"], ["Retrieval", .0149, 60, "--b"], ["API", .0002, 1, "--d"]];
+  const tot = parts.reduce((a, p) => a + p[1], 0); let x = 10;
+  parts.forEach((p, i) => {
+    const w = 300 * p[1] / tot; const r = el("rect", {x, y: 20, width: 0, height: 36, fill: CSS(p[3]), class: "bar", rx: i === 0 ? 6 : 0}, s); r.dataset.w = Math.max(w - 2, 1); r.dataset.x = x;
+    if (w > 30) { const t = el("text", {x: x + w / 2, y: 43, "text-anchor": "middle", style: "font:700 12px 'JetBrains Mono';fill:#06101f"}, s); t.textContent = "$" + p[1].toFixed(3); }
+    x += w;
+  });
+  parts.forEach((p, i) => { const y = 92 + i * 24; el("rect", {x: 10, y: y - 11, width: 12, height: 12, rx: 3, fill: CSS(p[3])}, s);
+    const t = el("text", {x: 30, y, class: "ax", style: "fill:var(--ink)"}, s); t.textContent = `${p[0]} · ${p[2]} calls · $${p[1].toFixed(4)}`; });
+})();
+
+/* reveal + counters + chart animation */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return; const t = e.target; t.classList.add("in");
+  t.querySelectorAll?.("[data-count]").forEach(count);
+  if (t.dataset?.count) count(t);
+  t.querySelectorAll?.(".bar").forEach(b => b.setAttribute("width", b.dataset.w));
+  t.querySelectorAll?.(".vv").forEach(v => { v.style.transition = "opacity .6s 1s"; v.style.opacity = 1; });
+  t.querySelectorAll?.(".arc").forEach(a => a.setAttribute("stroke-dasharray", a.dataset.d));
+  io.unobserve(t);
+}), {threshold: .18});
+document.querySelectorAll(".rv,.kpi").forEach(e => io.observe(e));
+function count(n) {
+  if (n.dataset.done) return; n.dataset.done = 1;
+  const to = parseFloat(n.dataset.count), dec = +(n.dataset.dec || 0), t0 = performance.now(), D = reduce ? 0 : 1400;
+  const step = now => { const p = D ? Math.min(1, (now - t0) / D) : 1, e = 1 - Math.pow(1 - p, 3); n.textContent = (to * e).toFixed(dec); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
