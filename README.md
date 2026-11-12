@@ -18,6 +18,10 @@ every flag backed by a quote.
 ![tests](https://img.shields.io/badge/tests-14%20passing-22c55e)
 ![cost](https://img.shields.io/badge/total%20LLM%20cost-%240.107-8b5cf6)
 
+<a href="https://dheepakkaran.github.io/underwriting-graphrag-idp/#overview"><img src="docs/media/overview.webp" alt="35-second overview: it reads the three documents of each insurance file, spots mismatches, connects files to find a broker ring, and sends risky files to a person" width="100%"></a>
+
+<sub>35-second overview (silent preview). <a href="https://dheepakkaran.github.io/underwriting-graphrag-idp/#overview">Watch it with sound on the project page →</a></sub>
+
 </div>
 
 > **Synthetic data only.** "Pine Harbor Mutual" and every applicant, broker and document here are fictional. Independent learning project; not affiliated with any insurer or institution. Not insurance advice.

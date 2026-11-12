@@ -99,12 +99,13 @@ footer{padding:44px 0 64px;font-size:13.5px;color:var(--muted)}
   th:nth-child(1),td:nth-child(1){padding-right:8px}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}.fade{opacity:1;transform:none}}
+.overview{margin:0;padding:56px 0}.overview video{display:block;width:100%;aspect-ratio:16/9;background:#0a0a0a;border:1px solid var(--line);border-radius:6px}.overview figcaption{font-size:14px;color:var(--muted);margin-top:12px;line-height:1.5}
 </style>
 </head>
 <body>
 <nav><div class="wrap">
   <a class="brand" href="#">Underwriting Document Intelligence</a>
-  <a href="#problem">Problem</a><a href="#approach">Approach</a><a href="#results">Results</a><a href="#lessons">Lessons</a><a href="#run">Run</a>
+  <a href="#overview">Video</a><a href="#problem">Problem</a><a href="#approach">Approach</a><a href="#results">Results</a><a href="#lessons">Lessons</a><a href="#run">Run</a>
   <a href="https://github.com/dheepakkaran/underwriting-graphrag-idp">GitHub</a>
 </div></nav>
 
@@ -116,6 +117,13 @@ footer{padding:44px 0 64px;font-size:13.5px;color:var(--muted)}
     <div class="meta"><span>Python · Claude Haiku 5.5 · LangGraph · FastAPI · Docker</span><a href="https://github.com/dheepakkaran/underwriting-graphrag-idp">Source code</a><a href="https://github.com/dheepakkaran/underwriting-graphrag-idp/blob/main/RESULTS.md">Full results</a></div>
   </div>
 </header>
+
+<div class="wrap">
+<figure class="overview" id="overview">
+<video controls playsinline preload="metadata" poster="media/overview.jpg"><source src="media/overview.mp4" type="video/mp4">Your browser cannot play this video. <a href="media/overview.mp4">Download it</a>.</video>
+<figcaption>The whole project in 35 seconds, with sound. "Pine Harbor Mutual" is a fictional insurer and every submission shown is synthetic; the documents and review screen are the project's own.</figcaption>
+</figure>
+</div>
 
 <div class="wrap">
   <div class="stats">
